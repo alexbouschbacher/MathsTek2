@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+
+import math
+import sys
+import csv
+
+len_tab = 58
+
+def calc_a(years, values):
+    return (sum(values) * sum(x ** 2 for x in years) - sum(years) * sum(years[i] * values[i] for i in range(len_tab))) / (len_tab * sum(x ** 2 for x in years) - sum(years) ** 2)
+
+
+def calc_b(years, values):
+    return (len_tab * sum(years[i] * values[i] for i in range(len_tab)) - sum(years) * sum(values)) / (len_tab * sum(x ** 2 for x in years) - sum(years) ** 2)
+
+
+def get_country(data, country):
+    for line in data:
+        if line['Country Code'] == country:
+            return dict(line)
+
+def quadra(a, b, years, values):
+    moy = 0
+    for i in range(0, len_tab):
+        calc = b * years[i] + a
+        moy += (calc - values[i] / 1000000) ** 2
+    return (math.sqrt(moy / len_tab))
+
+
+if (__name__ == "__main__"):
+    try:
+        reader = csv.DictReader(open('207demography_data.csv'), delimiter=';')
+        data = list()
+        for row in reader:
+            data.append(row)
+        countries = list()
+        for country in sys.argv[1:]:
+            countries.append(get_country(data, country))
+        names = []
+        for country in countries:
+            names.append(country['Country Name'])
+        print("Country:", ", ".join(sorted(names)))
+        year_list = [0] * len_tab
+        value_list = [0] * len_tab
+        for country in countries:
+            for value in country:
+                if (value != 'Country Code' and value != 'Country Name'):
+                    year_list[int(value)- 1960] = int(value)
+                    value_list[int(value) - 1960] += int(country[value])
+        a = calc_a(year_list, value_list) / 1000000
+        b = calc_b(year_list, value_list) / 1000000
+        p2050 = b * 2050 + a
+        quadra1 = quadra(a, b, year_list, value_list)
+        print("Fit 1")
+        print("    Y = %.2f X %c %.2f" %(b, '+' if (a >= 0) else '-', abs(a)))
+        print("    Root-mean-square deviation: %.2f" % quadra1)
+        print("    Population in 2050: %.2f" % p2050)
+
+        a = calc_a(value_list, year_list)
+        b = calc_b(value_list, year_list) * 1000000
+        p2050 = (2050 - a) / b
+        quadra2 = quadra(-a / b, 1 / b, year_list, value_list)
+        print("Fit 2")
+        print("    X = %.2f Y %c %.2f" %(b, '+' if (a >= 0) else '-', abs(a)))
+        print("    Root-mean-square deviation: %.2f" % quadra2)
+        print("    Population in 2050: %.2f" % p2050)
+        print("Correlation: %.4f" %(quadra1/ quadra2))
+    except:
+        sys.exit(84)
+    sys.exit(0)

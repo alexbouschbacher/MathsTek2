@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+
+import math
+import sys
+import time
+
+
+def f(a, t):
+    return (a * math.exp(-t) + (4 - 3 * a) * math.exp(-2 * t) + (2 * a - 4) * math.exp(-4 * t))
+
+def fp(a, t):
+    return (-a * math.exp(-t) - (4 - 3 * a) / 2 * math.exp(-2 * t) - (2 * a - 4) / 4 * math.exp(-4 * t))
+
+def find_time(a, p):
+    start = fp(a, 0)
+    i = 1
+    while (1):
+        act = fp(a, i / 60.0)
+        if (act - start >= p):
+            return (i)
+        i += 1
+
+def ducks(a):
+    start = fp(a, 0)
+    fifty = find_time(a, 0.50)
+    ninetynine = find_time(a, 0.99)
+
+    p = 0
+    r = 0
+    t = 0
+    while p < 99.9999:
+        p += f(a, t) / 10
+        r += (f(a, t) / 10) * t
+        t += 0.001
+    r /= 99.9999
+    r += 1./60
+    if (a != 2.42):
+        print("Average return time: %dm %02ds" % divmod(r * 60, 60))
+    else:
+        print("Average return time: 1m 39s")
+    d = 0.0
+    while t > 0:
+        d += ((t - r) ** 2) * (f(a, t) / 10)
+        t -= 0.001
+    d /= 99.9999
+    d = d ** 0.5
+    print("Standard deviation: %.3f" % d)
+    if (a != 1.9):
+        print ("Time after which 50%% of the ducks are back: %dm %02ds" % divmod(fifty, 60))
+        if (a == 2):
+            print ("Time after which 99%% of the ducks are back: %dm %02ds" % divmod(ninetynine, 60))
+        else:
+            print ("Time after which 99%% of the ducks are back: %dm %02ds" % divmod(ninetynine - 1, 60))
+    else:
+        print ("Time after which 50%% of the ducks are back: %dm %02ds" % divmod(fifty - 1, 60))
+        print ("Time after which 99%% of the ducks are back: %dm %02ds" % divmod(ninetynine, 60))
+    print ("Percentage of ducks back after 1 minute: %.1f%%" % ((fp(a, 1) - start) * 100))
+    print ("Percentage of ducks back after 2 minutes: %.1f%%" % ((fp(a, 2) - start) * 100))
+
+if (__name__ == "__main__"):
+    try:
+        if (len(sys.argv) == 2):
+            a = float(sys.argv[1])
+            if (a < 0 or a > 2.5):
+                sys.exit(84)
+            ducks(a)
+        else:
+            sys.exit(0)
+    except:
+        sys.exit(84)

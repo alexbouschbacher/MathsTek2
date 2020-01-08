@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+
+import math
+import sys
+
+def calc_harmo(nb, old_harmo, add):
+    a = 1 / old_harmo
+    b = a * nb
+    c = b + 1 / add
+    e = c / (nb + 1)
+    return (1 / e)
+
+def calc_quadra(nb, old_std, old_arit, arit, add):
+    a = old_std * old_std
+    b = a * nb
+    c = b + nb * (old_arit * old_arit)
+    d = c + (add * add)
+    e = d / (nb + 1)
+    return (math.sqrt(e))
+
+def calc_std(nb, old_std, old_arit, arit, add):
+    a = old_std * old_std
+    b = a * nb
+    c = b + nb * (old_arit * old_arit)
+    d = c + (add * add)
+    e = d - (nb + 1) * (arit * arit)
+    f = e / (nb + 1)
+    return (math.sqrt(f))
+
+def calc_ari(nb, arit, val):
+    return (((nb * arit) + val) / (nb + 1))
+
+if (__name__ == "__main__"):
+    try:
+        if (len(sys.argv) > 5):
+            sys.exit(84)
+        nb_val = int(sys.argv[1])
+        arit_moy = int(sys.argv[2])
+        harmo_moy = int(sys.argv[3])
+        std_deriv = int(sys.argv[4])
+        if (std_deriv <= 0):
+            sys.exit(84)
+        string = input("Enter next value: ")
+        while (string != "END"):
+            value = int(string)
+            new_ari = calc_ari(nb_val, arit_moy, value)
+            new_std = calc_std(nb_val, std_deriv, arit_moy, new_ari, value)
+            quadra = calc_quadra(nb_val, std_deriv, arit_moy, new_ari, value)
+            harmonic = calc_harmo(nb_val, harmo_moy, value)
+            nb_val += 1
+            print("    Number of values:   %d" % nb_val)
+            print("    Standard deviation: %.2f" % new_std)
+            print("    Arithmetic mean:    %.2f" % new_ari)
+            print("    Root mean square:   %.2f" % quadra)
+            print("    Harmonic mean:      %.2f" % harmonic)
+            print("")
+            arit_moy = new_ari
+            std_deriv = new_std
+            harmo_moy = harmonic
+            string = input("Enter next value: ")
+    except:
+        sys.exit(84)
+    sys.exit(0)

@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+
+import math
+import sys
+
+lenc = 0
+
+def recursive(cpy, lenc, tab):
+    if (lenc == 0):
+        i = 0
+        lenr = len(tab)
+        while i < lenr:
+            try:
+                j = cpy.index(tab[i])
+                del cpy[j]
+                del tab[i]
+                lenr -= 1
+            except ValueError:
+                i += 1
+        if (len(cpy) == 0):
+            return (0)
+        else:
+            return (1)
+    else:
+        pn = 0
+        i = 1
+        while i <= 6:
+            l = lenc - 1
+            pn += recursive(cpy[:], l, tab + [i])
+            i += 1
+        return (pn)
+
+
+def getCombi(comb):
+    tab = []
+    nb = int(comb[len(comb) - 1])
+    if (comb[0 : -3] == "full_"):
+        nb2 = int(comb[len(comb) - 3])
+        tab += [nb2] * 3
+        tab += [nb] * 2
+        if (nb == nb2):
+            print("The 2 numbers of the full can't be the same!")
+            sys.exit(84)
+        print("chances to get a %d full of %d: " % (nb2, nb), end='')
+    elif (comb[0 : -1] == "pair_"):
+        tab += [nb] * 2
+        print("chances to get a %d pair: " % nb, end='')
+    elif (comb[0 : -1] == "three_"):
+        tab += [nb] * 3
+        print("chances to get a %d three-of-a-kind: " % nb, end='')
+    elif (comb[0 : -1] == "four_"):
+        tab += [nb] * 4
+        print("chances to get a %d four-of-a-kind: " % nb, end='')
+    elif (comb[0 : -1] == "straight_"):
+        tab = [1, 2, 3, 4, 5, 6]
+        if (nb == 6):
+            tab = tab[1:6]
+        elif (nb == 5):
+            tab = tab[0:5]
+        else:
+            print("Invalid form name!!!")
+            sys.exit(84)
+        print("chances to get a %d straight: " % nb, end='')
+    elif (comb[0 : -1] == "yams_"):
+        tab += [nb] * 5
+        print("chances to get a %d yams: " % nb, end='')
+    else:
+        print("Invalid form name!!!")
+        sys.exit(84)
+    return (tab)
+
+def errorHandling(arg):
+    i = 1
+    while i < 6:
+        if (len(arg[i]) != 1 or arg[i][0] < '0' or arg[i][0] > '6'):
+            print("Error on a number!!") #TODO !!!!!!!!!!!!
+            sys.exit(84)
+        i += 1
+    if (arg[6][-1] < '1' or arg[6][-1] > '6'):
+        print("Invalid form number!!!") #TODO !!!!!!!!
+        sys.exit(84)
+    elif (len(arg[6]) == 8 and arg[6][0:5] == "full_"):
+        if (arg[6][5] < '1' or arg[6][5] > '6'):
+            print("Invalid full number!!!") #TODO !!!!!!!!
+            sys.exit(84)
+        elif(arg[6][6] != '_'):
+            print("Invalid full syntax!!!") #TODO !!!!!!!!
+            sys.exit(84)
+
+if (__name__ == "__main__"):
+    if (len(sys.argv) == 2 and sys.argv[2] == "-h"):
+        print("inclure le -h ici!!!") #TODO !!!!!!!!!!!!!!!
+        sys.exit(0)
+    elif (len(sys.argv) != 7):
+        print("Pas assez d'arguments!") #TODO !!!!!!!!!!!!
+        sys.exit(84)
+    errorHandling(sys.argv)
+    dices = [int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5])]
+    comb = sys.argv[6]
+    result = getCombi(comb)
+    i = 0
+    lent = 5
+    while i < lent:
+        try:
+            j = result.index(dices[i])
+            del result[j]
+            del dices[i]
+            lent -= 1
+        except ValueError:
+            i += 1
+    # if (len(result) == 0):
+    #     print("100.00%")
+    # else:
+    lenc = len(dices)
+    a = recursive(result[:], lenc , [])
+    cas = (6**lenc) - a
+    print("%.2f%%" % ((cas / (6**lenc)) * 100))
+    sys.exit(0)

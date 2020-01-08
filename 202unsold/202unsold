@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+
+import math
+import sys
+
+X = [10, 20, 30, 40, 50]
+Y = [10, 20, 30, 40, 50]
+Z = [20, 30, 40, 50, 60, 70, 80, 90, 100]
+Zlaw = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+Xlaw = [0, 0, 0, 0, 0]
+Ylaw = []
+
+def calc(a, b, y, x):
+    res = ((a - x) * (b - y)) / ((5 * a - 150) * (5 * b - 150))
+    return (res)
+
+def show_tab(tab):
+    print("----------------------------------------------------")
+    print("        X=10   X=20   X=30   X=40   X=50   Ylaw")
+    i = 0
+    while i < 5:
+        print("Y=%d  " %(Y[i]), end='')
+        j = 0
+        while j < 5:
+            print("  %.3f" %(tab[i][j]), end='')
+            Xlaw[j] += tab[i][j]
+            j += 1
+        Ylaw.append(sum(tab[i]))
+        print("  %.3f" %(sum(tab[i])))
+        i += 1
+    print("X law ", end='')
+    i = 0
+    while i < 5:
+        print("  %.3f" %(Xlaw[i]), end='')
+        i += 1
+    print("  1")
+
+def calcZ(tab):
+    Zlaw[0] = tab[0][0]
+    Zlaw[1] = tab[0][1] + tab[1][0]
+    Zlaw[2] = tab[0][2] + tab[1][1] + tab[2][0]
+    Zlaw[3] = tab[0][3] + tab[1][2] + tab[2][1] + tab[3][0]
+    Zlaw[4] = tab[0][4] + tab[1][3] + tab[2][2] + tab[3][1] + tab[4][0]
+    Zlaw[5] = tab[1][4] + tab[2][3] + tab[3][2] + tab[4][1]
+    Zlaw[6] = tab[2][4] + tab[3][3] + tab[4][2]
+    Zlaw[7] = tab[3][4] + tab[4][3]
+    Zlaw[8] = tab[4][4]
+    print("----------------------------------------------------")
+    print("z       20     30     40     50     60     70     80     90     100    total")
+    print("p(Z=z)", end='')
+    i = 0
+    while i < 9:
+        print("  %.3f" %(Zlaw[i]), end='')
+        i += 1
+    print("  1")
+
+def calcEnd(tab):
+    expX = 0
+    expY = 0
+    expZ = 0
+    i = 0
+    while i < 5:
+        expX += X[i] * Xlaw[i]
+        expY += Y[i] * Ylaw[i]
+        expZ += Z[i] * Zlaw[i]
+        i += 1
+    while i < 9:
+        expZ += Z[i] * Zlaw[i]
+        i += 1
+    varX = 0
+    varY = 0
+    varZ = 0
+    i = 0
+    while i < 5:
+        varX += Xlaw[i] * pow(X[i] - expX, 2)
+        varY += Ylaw[i] * pow(Y[i] - expY, 2)
+        varZ += Zlaw[i] * pow(Z[i] - expZ, 2)
+        i += 1
+    while i < 9:
+        varZ += Zlaw[i] * pow(Z[i] - expZ, 2)
+        i += 1
+    print("----------------------------------------------------")
+    print("expected value of X:  %.1f" %(expX))
+    print("variance of X:        %.1f" %(varX))
+    print("expected value of Y:  %.1f" %(expY))
+    print("variance of Y:        %.1f" %(varY))
+    print("expected value of Z:  %.1f" %(expZ))
+    print("variance of Z:        %.1f" %(varZ))
+    print("----------------------------------------------------")
+
+
+def error_handling():
+    if (len(sys.argv) == 2 and sys.argv[1] == "-h"):
+        print("USAGE")
+        print("           ./202unsold a b")
+        print("DESCRIPTION")
+        print("           a    constant computed from the past results")
+        print("           b    constant computed from the past results")
+        sys.exit(0)
+    if (len(sys.argv) != 3):
+        sys.exit(84)
+    try:
+        a = int(sys.argv[1])
+    except:
+        sys.exit(84)
+    try:
+        b = int(sys.argv[2])
+    except:
+        sys.exit(84)
+    if (a < 50 or b < 50):
+        sys.exit(84)
+
+if (__name__ == "__main__"):
+    error_handling()
+    tab = []
+    a = int(sys.argv[1])
+    b = int(sys.argv[2])
+    i = 0
+    while i < 5:
+        p = []
+        j = 0
+        while j < 5:
+            p.append(calc(a, b, Y[i], X[j]))
+            j += 1
+        tab.append(p)
+        i += 1
+    show_tab(tab)
+    calcZ(tab)
+    calcEnd(tab)
+    sys.exit(0)
